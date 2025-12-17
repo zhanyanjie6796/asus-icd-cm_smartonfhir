@@ -1,0 +1,18 @@
+參考網頁：
+https://github.com/voho0000/medical-note-smart-on-fhir/tree/master
+
+開發執行：
+npm run dev:webpack
+
+執行：
+# production build
+npm run build
+
+# start production server
+npm start
+======================================================================
+使用：http://localhost:3000/smart/launch
+
+如下：
+https://launch.smarthealthit.org/?launch_url=http%3A%2F%2Flocalhost%3A3000%2Fsmart%2Flaunch&launch=WzAsIiIsIiIsIkFVVE8iLDAsMCwwLCIiLCIiLCIiLCIiLCIiLCIiLCIiLDAsMSwiIl0
+
