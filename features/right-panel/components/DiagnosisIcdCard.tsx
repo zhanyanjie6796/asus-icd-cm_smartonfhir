@@ -159,7 +159,9 @@ async function searchIcdCode(query: string, sessionToken: string): Promise<IcdIn
       },
       body: JSON.stringify({
         query: query,
-        target: "CM"
+        target: "CM",
+        model: "NHI-2023",
+        useSpecifiedModel: true               
       })
     })
 
