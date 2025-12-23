@@ -67,4 +67,28 @@ Use `npm run dev:webpack` during development. Turbopack scripts are available if
 
 3. Launch → complete auth → redirected back to the app → Patient info loads on the home page.
 
-Don’t refresh /smart/callback directly; always start from /smart/launch.
+Don't refresh /smart/callback directly; always start from /smart/launch.
+
+---
+
+## 開發團隊
+
+- **孫英洲**：團隊主持人
+- **詹彥杰**：本專案開發者
+- **黃凱辰**：技術支援者
+- **郭宜欣**：核心程式提供者
+
+---
+
+## 專案來源
+
+本專案核心是使用 **郭宜欣** 醫師的「medical-note-smart-on-fhir」修改而成。
+
+**郭宜欣專案連結：**  
+https://github.com/voho0000/medical-note-smart-on-fhir/tree/master
+
+**介紹影片：**  
+https://youtu.be/5QzJXCIXmU0
+
+**SMART Launcher：**  
+https://launch.smarthealthit.org/
