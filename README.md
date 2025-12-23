@@ -84,6 +84,9 @@ https://youtu.be/5QzJXCIXmU0
 **SMART Launcher：**  
 https://launch.smarthealthit.org/
 
+**App Demo Launch URL：**  
+https://launch.smarthealthit.org/?launch=WzAsIiIsIiIsIlByYWN0aXRpb25lci81MjkxOTA5OS02YTdhLTQ0MmMtYjBkNS0yYjAyYzBkZDRiNzQiLDAsMCwwLCIiLCIiLCIiLCIiLCIiLCIiLCIiLDAsMSwiIl0&iss=https%3A%2F%2Flaunch.smarthealthit.org%2Fv%2Fr4%2Ffhir&launch_url=https%3A%2F%2Fzhanyanjie6796.github.io%2Fasus-icd-cm_smartonfhir%2Fsmart%2Flaunch%2F
+
 ---
 
 P.S.本專案核心是使用 **郭宜欣** 醫師的「medical-note-smart-on-fhir」修改而成。
