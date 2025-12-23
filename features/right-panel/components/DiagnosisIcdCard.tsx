@@ -159,6 +159,7 @@ async function searchIcdCode(query: string, sessionToken: string): Promise<IcdIn
       },
       body: JSON.stringify({
         query: query,
+        // query: "高血壓",
         target: "CM",
         model: "NHI-2023",
         useSpecifiedModel: true               
@@ -207,7 +208,7 @@ function IcdResultList({ icdList }: { icdList: IcdInfo[] }) {
   return (
     <div className="bg-blue-50 rounded-md p-2 mt-1">
       <div className="flex items-center justify-between mb-1">
-        <span className="text-xs font-medium text-blue-700">ICD-10 編碼查詢結果：</span>
+        <span className="text-xs font-medium text-blue-700">ICD-10-CM 編碼查詢結果：</span>
         {hasMore && (
           <button
             onClick={() => setExpanded(!expanded)}
@@ -325,7 +326,7 @@ export function DiagnosisIcdCard() {
 
   const loading = isLoading || tokenLoading
   const err = error ? String(error) : null
-  const CARD_TITLE = "Diagnosis / Problem List / ICD-10 Code"
+  const CARD_TITLE = "Diagnosis / Problem List / ICD-10-CM Code"
 
   // 根據不同狀態顯示不同內容
   const renderContent = () => {
