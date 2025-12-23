@@ -78,17 +78,16 @@ Don't refresh /smart/callback directly; always start from /smart/launch.
 - **黃凱辰**：技術支援者
 - **郭宜欣**：核心程式提供者
 
----
-
-## 專案來源
-
-本專案核心是使用 **郭宜欣** 醫師的「medical-note-smart-on-fhir」修改而成。
-
-**郭宜欣專案連結：**  
-https://github.com/voho0000/medical-note-smart-on-fhir/tree/master
-
 **介紹影片：**  
 https://youtu.be/5QzJXCIXmU0
 
 **SMART Launcher：**  
 https://launch.smarthealthit.org/
+
+---
+
+P.S.本專案核心是使用 **郭宜欣** 醫師的「medical-note-smart-on-fhir」修改而成。
+
+**郭宜欣專案連結：**  
+https://github.com/voho0000/medical-note-smart-on-fhir/tree/master
+
