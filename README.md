@@ -78,9 +78,10 @@ Don't refresh /smart/callback directly; always start from /smart/launch.
 ## 開發團隊
 
 - **孫英洲**：團隊主持人
-- **詹彥杰**：本專案開發者
-- **黃凱辰**：技術支援者
-- **郭宜欣**：核心程式提供者
+- **郭宜欣**：核心程式提供
+- **詹彥杰**：本專案開發
+- **黃凱辰**：技術支援
+
 
 **介紹影片：**  
 https://youtu.be/5QzJXCIXmU0
