@@ -4,6 +4,7 @@ import type { Metadata } from "next"
 import { ApiKeyProvider } from "@/lib/providers/ApiKeyProvider"
 import { PatientProvider } from "@/lib/providers/PatientProvider"
 import { ClinicalDataProvider } from "@/lib/providers/ClinicalDataProvider"
+import { IcdTokenKeyProvider } from "@/lib/providers/IcdTokenKeyProvider"
 
 export const metadata: Metadata = {
   title: "Medical Note · SMART on FHIR",
@@ -17,7 +18,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ApiKeyProvider storage="session">
           <PatientProvider>
             <ClinicalDataProvider>
-              {children}
+              <IcdTokenKeyProvider>
+                {children}
+              </IcdTokenKeyProvider>
             </ClinicalDataProvider>
           </PatientProvider>
         </ApiKeyProvider>

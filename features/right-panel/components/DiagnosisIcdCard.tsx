@@ -3,7 +3,10 @@
 
 import { useMemo, useState, useEffect, useCallback, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import { useClinicalData } from "@/lib/providers/ClinicalDataProvider"
+import { useIcdTokenKey, DEFAULT_TOKEN_KEY } from "@/lib/providers/IcdTokenKeyProvider"
 
 // FHIR R4 Type Definitions
 interface Coding {
@@ -94,56 +97,58 @@ function isGitHubPages(): boolean {
   return window.location.hostname.includes('github.io')
 }
 
-// 取得 session token
+// 驗證結果型別
+interface TokenValidationResult {
+  success: boolean
+  session: string | null
+  error?: string
+}
+
+// 取得 session token（使用傳入的 tokenKey）
 // - GitHub Pages：直接呼叫 Flask server
 // - 本地開發：透過 Next.js API route 代理（避免 CORS 問題）
-async function getSessionToken(): Promise<string | null> {
+async function getSessionToken(tokenKey: string): Promise<TokenValidationResult> {
   try {
     // GitHub Pages 靜態部署：直接呼叫 Flask server
     if (isGitHubPages()) {
-      const response = await fetch(`${FLASK_SERVER_URL}/api/token`, {
+      const url = new URL(`${FLASK_SERVER_URL}/api/tokenkey`)
+      url.searchParams.set('key', tokenKey)
+      
+      const response = await fetch(url.toString(), {
         method: "GET",
         headers: { "Accept": "application/json" }
       })
 
-      if (!response.ok) {
-        console.error("Token API error:", response.status)
-        return null
-      }
-
+      // 不論狀態碼，都嘗試解析 JSON 取得 error 訊息
       const data = await response.json()
       
-      if (data.success && data.session) {
+      if (response.ok && data.success && data.session) {
         console.log("Session token obtained from Flask server")
-        return data.session
+        return { success: true, session: data.session }
       } else {
         console.error("取得 token 失敗:", data.error)
-        return null
+        return { success: false, session: null, error: data.error || "Token 驗證失敗" }
       }
     }
 
-    // 本地開發：透過 Next.js API route 代理
-    const response = await fetch("/api/asus-auth", {
+    // 本地開發：透過 Next.js API route 代理（需要傳遞 tokenKey）
+    const response = await fetch(`/api/asus-auth?key=${encodeURIComponent(tokenKey)}`, {
       method: "GET"
     })
 
-    if (!response.ok) {
-      console.error("Token API error:", response.status)
-      return null
-    }
-
+    // 不論狀態碼，都嘗試解析 JSON 取得 error 訊息
     const data = await response.json()
     
-    if (data.success && data.session) {
+    if (response.ok && data.success && data.session) {
       console.log("Session token obtained via API route")
-      return data.session
+      return { success: true, session: data.session }
     } else {
       console.error("取得 token 失敗:", data.error)
-      return null
+      return { success: false, session: null, error: data.error || "Token 驗證失敗" }
     }
   } catch (error) {
     console.error("Error getting session token:", error)
-    return null
+    return { success: false, session: null, error: "網路錯誤，請稍後再試" }
   }
 }
 
@@ -236,26 +241,117 @@ function IcdResultList({ icdList }: { icdList: IcdInfo[] }) {
   )
 }
 
+// ICD Token Key 輸入區塊組件
+function IcdTokenKeyInput({ 
+  onValidationSuccess 
+}: { 
+  onValidationSuccess: (session: string) => void 
+}) {
+  const { tokenKey, setTokenKey, clearTokenKey } = useIcdTokenKey()
+  const [inputValue, setInputValue] = useState(tokenKey || DEFAULT_TOKEN_KEY)
+  const [validating, setValidating] = useState(false)
+  const [validationMessage, setValidationMessage] = useState<{ type: 'success' | 'error' | 'info', text: string } | null>(null)
+  
+  // 當 tokenKey 改變時同步到 inputValue
+  useEffect(() => {
+    if (tokenKey) {
+      setInputValue(tokenKey)
+    }
+  }, [tokenKey])
+
+  const handleSave = async () => {
+    if (!inputValue.trim()) {
+      setValidationMessage({ type: 'error', text: '請輸入 ICD tokenkey' })
+      return
+    }
+
+    setValidating(true)
+    setValidationMessage({ type: 'info', text: '正在驗證 tokenkey...' })
+
+    const result = await getSessionToken(inputValue.trim())
+
+    if (result.success && result.session) {
+      // 驗證成功，儲存到 localStorage
+      setTokenKey(inputValue.trim())
+      setValidationMessage({ type: 'success', text: '✅ 取得 Token 成功！正在載入 ICD 編碼預測...' })
+      onValidationSuccess(result.session)
+    } else {
+      // 直接顯示 API 回傳的 error 訊息
+      setValidationMessage({ type: 'error', text: `❌ 失敗：${result.error}` })
+    }
+
+    setValidating(false)
+  }
+
+  const handleClear = () => {
+    setInputValue("")
+    clearTokenKey()
+    setValidationMessage(null)
+  }
+
+  return (
+    <div className="max-w-xl space-y-2 mb-4 p-3 bg-gray-50 rounded-lg border">
+      <label className="text-xs text-muted-foreground block">
+        請輸入ICD tokenkey（僅保存在本機瀏覽器），如果不知請洽承辦人。
+      </label>
+      
+      <div className="flex gap-1.5">
+        <Input
+          type="text"
+          placeholder="請輸入 ICD tokenkey..."
+          className="h-8 text-sm flex-1"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          disabled={validating}
+        />
+        <Button 
+          size="sm" 
+          onClick={handleSave} 
+          disabled={!inputValue.trim() || validating}
+        >
+          {validating ? '驗證中...' : 'Save'}
+        </Button>
+        <Button 
+          size="sm" 
+          variant="outline" 
+          onClick={handleClear}
+          disabled={validating}
+        >
+          Clear
+        </Button>
+      </div>
+      <label className="text-xs text-muted-foreground block">
+        輸入後請按下「Save」按鈕儲存，並執行ICD編碼預測。
+      </label>      
+      {validationMessage && (
+        <p className={`text-xs ${
+          validationMessage.type === 'success' ? 'text-green-600' : 
+          validationMessage.type === 'error' ? 'text-red-600' : 
+          'text-blue-600'
+        }`}>
+          {validationMessage.text}
+        </p>
+      )}
+    </div>
+  )
+}
+
 export function DiagnosisIcdCard() {
   const { diagnoses = [], isLoading, error } = useClinicalData()
+  const { tokenKey } = useIcdTokenKey()
   const [sessionToken, setSessionToken] = useState<string | null>(null)
-  const [tokenLoading, setTokenLoading] = useState(true)
+  const [tokenLoading, setTokenLoading] = useState(false)
   const [icdResults, setIcdResults] = useState<Record<string, IcdInfo[]>>({})
   const [loadingIcd, setLoadingIcd] = useState<Record<string, boolean>>({})
-  const tokenFetched = useRef(false)
+  const [tokenValidated, setTokenValidated] = useState(false)
   
-  // 網頁載入時取得 session token（只執行一次）
-  useEffect(() => {
-    if (tokenFetched.current) return
-    tokenFetched.current = true
-
-    async function fetchToken() {
-      setTokenLoading(true)
-      const token = await getSessionToken()
-      setSessionToken(token)
-      setTokenLoading(false)
-    }
-    fetchToken()
+  // 當驗證成功時的回調
+  const handleValidationSuccess = useCallback((session: string) => {
+    setSessionToken(session)
+    setTokenValidated(true)
+    // 清除之前的 ICD 結果，重新查詢
+    setIcdResults({})
+    setLoadingIcd({})
   }, [])
 
   const rows = useMemo<Row[]>(() => {
@@ -324,12 +420,12 @@ export function DiagnosisIcdCard() {
     }
   }, [rows, isLoading, tokenLoading, sessionToken, fetchAllIcdCodes])
 
-  const loading = isLoading || tokenLoading
+  const loading = isLoading
   const err = error ? String(error) : null
   const CARD_TITLE = "Diagnosis / Problem List / ICD-10-CM Code"
 
-  // 根據不同狀態顯示不同內容
-  const renderContent = () => {
+  // 根據不同狀態顯示診斷列表內容
+  const renderDiagnosisList = () => {
     if (loading) {
       return <div className="text-sm text-muted-foreground">載入診斷中…</div>
     }
@@ -338,8 +434,8 @@ export function DiagnosisIcdCard() {
       return <div className="text-sm text-red-600">{err}</div>
     }
     
-    if (!sessionToken) {
-      return <div className="text-sm text-yellow-600">無法取得 API Token，ICD 查詢功能暫時無法使用。</div>
+    if (!tokenValidated || !sessionToken) {
+      return <div className="text-sm text-yellow-600">請先輸入並驗證 ICD tokenkey 後，才能執行 ICD 編碼預測。</div>
     }
     
     if (rows.length === 0) {
@@ -401,7 +497,10 @@ export function DiagnosisIcdCard() {
   return (
     <Card>
       <CardHeader><CardTitle>{CARD_TITLE}</CardTitle></CardHeader>
-      <CardContent>{renderContent()}</CardContent>
+      <CardContent>
+        <IcdTokenKeyInput onValidationSuccess={handleValidationSuccess} />
+        {renderDiagnosisList()}
+      </CardContent>
     </Card>
   )
 }
