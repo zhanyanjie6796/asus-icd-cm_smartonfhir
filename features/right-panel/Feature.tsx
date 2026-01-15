@@ -4,7 +4,6 @@
 import { useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import MedicalNoteFeature from "@/features/medical-note/Feature"
 import { DataSelectionPanel } from "@/features/data-selection/components/DataSelectionPanel"
 import { DiagnosisIcdCard } from "@/features/right-panel/components/DiagnosisIcdCard"
 import { useClinicalData } from "@/lib/providers/ClinicalDataProvider"
@@ -42,20 +41,11 @@ export function RightPanelFeature() {
       className="h-full flex flex-col"
       defaultValue="diagnosisIcd"
     >
-      <TabsList className="grid w-full grid-cols-3">
+      <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="diagnosisIcd">Diagnosis ICD</TabsTrigger>
-        <TabsTrigger value="medicalNote">Medical Note</TabsTrigger>        
         <TabsTrigger value="dataSelection">Data Selection</TabsTrigger>
       </TabsList>
       
-      <TabsContent value="medicalNote" className="flex-1 mt-0 pt-4">
-        <ScrollArea className="h-full pr-2">
-          <div className="space-y-4">
-            <MedicalNoteFeature />
-          </div>
-        </ScrollArea>
-      </TabsContent>
-
       <TabsContent value="diagnosisIcd" className="flex-1 mt-0 pt-4">
         <ScrollArea className="h-full pr-2">
           <DiagnosisIcdCard />

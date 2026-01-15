@@ -284,7 +284,7 @@ function IcdTokenKeyInput({
   }
 
   const handleClear = () => {
-    setInputValue("")
+    setInputValue(DEFAULT_TOKEN_KEY)
     clearTokenKey()
     setValidationMessage(null)
   }

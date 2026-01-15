@@ -10,7 +10,7 @@ export default function Page() {
     <PatientProvider>
       <div className="flex h-svh flex-col overflow-hidden">
         <header className="shrink-0 border-b px-6 py-3">
-          <h1 className="text-xl font-semibold">ICD AI 即時智慧編碼 v1.2 ( Clinical Summary | Diagnosis ICD | Medical Note )</h1>
+          <h1 className="text-xl font-semibold">ICD AI 即時智慧編碼 v1.2 ( Clinical Summary | Diagnosis ICD )</h1>
         </header>
         <main className="grid flex-1 grid-cols-1 gap-4 overflow-hidden p-4 lg:grid-cols-2">
           {/* Left Panel - Clinical Summary */}
@@ -18,7 +18,7 @@ export default function Page() {
             <ClinicalSummaryFeature />
           </section>
           
-          {/* Right Panel - Tabs (Medical Note / Data Selection) */}
+          {/* Right Panel - Tabs (Diagnosis ICD / Data Selection) */}
           <section className="min-h-0 overflow-y-auto">
             <RightPanelFeature />
           </section>

@@ -4,7 +4,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react"
 
 // 預設的 ICD Token Key
-const DEFAULT_TOKEN_KEY = "Smart50#2"
+const DEFAULT_TOKEN_KEY = "OpenTest@Smart50"
 
 type Ctx = {
   tokenKey: string
@@ -13,6 +13,29 @@ type Ctx = {
 }
 
 const IcdTokenKeyContext = createContext<Ctx | null>(null)
+
+// Cookie 工具函數
+// 設定 Cookie (名稱, 值, 存活小時數)
+function setCookie(name: string, value: string, hours: number) {
+  const maxAge = hours * 60 * 60 // 把小時換算成秒
+  document.cookie = `${name}=${encodeURIComponent(value)}; max-age=${maxAge}; path=/`
+}
+
+function getCookie(name: string): string | null {
+  const nameEQ = `${name}=`
+  const cookies = document.cookie.split(';')
+  for (let c of cookies) {
+    c = c.trim()
+    if (c.startsWith(nameEQ)) {
+      return decodeURIComponent(c.substring(nameEQ.length))
+    }
+  }
+  return null
+}
+
+function deleteCookie(name: string) {
+  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/`
+}
 
 export function IcdTokenKeyProvider({
   children,
@@ -23,37 +46,37 @@ export function IcdTokenKeyProvider({
 }) {
   const isBrowser = typeof window !== "undefined"
 
-  const store: Storage | null = useMemo(() => {
-    if (!isBrowser) return null
-    return window.localStorage
-  }, [isBrowser])
-
   // 初始化時先設為預設值
   const [tokenKey, setTokenKeyState] = useState(DEFAULT_TOKEN_KEY)
 
   useEffect(() => {
-    if (!store) return
+    if (!isBrowser) return
     try {
-      const v = store.getItem(storageKey)
-      // 如果 localStorage 有存值就用存的，否則保持預設值
+      const v = getCookie(storageKey)
+      // 如果 Cookie 有存值就用存的，否則保持預設值
       if (v) setTokenKeyState(v)
     } catch {}
-  }, [store, storageKey])
+  }, [isBrowser, storageKey])
 
   const setTokenKey = (k: string) => {
     setTokenKeyState(k)
-    if (!store) return
+    if (!isBrowser) return
     try {
-      if (k) store.setItem(storageKey, k)
-      else store.removeItem(storageKey)
+      if (k) {
+        // 儲存到 Cookie，有效期 2 小時
+        setCookie(storageKey, k, 2)
+      } else {
+        deleteCookie(storageKey)
+      }
     } catch {}
   }
 
   const clearTokenKey = () => {
-    setTokenKeyState("")
-    if (!store) return
+    // 回到預設值
+    setTokenKeyState(DEFAULT_TOKEN_KEY)
+    if (!isBrowser) return
     try {
-      store.removeItem(storageKey)
+      deleteCookie(storageKey)
     } catch {}
   }
 
