@@ -26,14 +26,28 @@ export default function SmartLaunchPage() {
       console.log("[SMART] isGhPages=", isGhPages, "prefix=", prefix)
       console.log("[SMART] baseUrl=", baseUrl, "redirectUri=", redirectUri)
 
-      // || process.env.NEXT_PUBLIC_SMART_CLIENT_ID
-      const clientId = url.searchParams.get("client_id")
-        || "cc344727-6f90-496c-94fd-c7829aa9a51d"
+      // 嘗試從 launch 參數 (Base64 JSON) 中解碼 clientId 和 clientSecret
+      let launchClientId: string | undefined
+      let launchClientSecret: string | undefined
+      if (launch) {
+        try {
+          const decoded = JSON.parse(atob(launch))
+          if (Array.isArray(decoded)) {
+            launchClientId = decoded[9] || undefined   // index 9 = Client ID
+            launchClientSecret = decoded[10] || undefined // index 10 = Client Secret
+            console.log("[SMART] decoded launch → clientId=", launchClientId, "clientSecret=", launchClientSecret ? "***" : "(empty)")
+          }
+        } catch (e) {
+          console.warn("[SMART] Could not decode launch param:", e)
+        }
+      }
 
-      console.log("[SMART] clientId=", clientId)
+      // 優先順序: URL query param → launch 解碼值 → 硬編碼預設值
+      const clientId = url.searchParams.get("client_id")
+        || launchClientId
 
       const clientSecret = url.searchParams.get("client_secret")
-        || "79f04b56b33491716c0880af72cdef7d3f0629111421cedd18353651cd313d9e"
+        || launchClientSecret
 
       await FHIR.oauth2.authorize({
         // clientId: "my_web_app",        
