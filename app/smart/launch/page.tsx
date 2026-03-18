@@ -50,10 +50,12 @@ export default function SmartLaunchPage() {
         || launchClientSecret
 
       await FHIR.oauth2.authorize({
-        // clientId: "my_web_app",        
-        clientId: clientId,
-        clientSecret: clientSecret,
-        scope: "launch openid fhirUser patient/*.read online_access",
+        clientId: "cc344727-6f90-496c-94fd-c7829aa9a51d",     
+        clientSecret: "79f04b56b33491716c0880af72cdef7d3f0629111421cedd18353651cd313d9e",
+        scope: "launch openid fhirUser patient/*.read",
+        // clientId: clientId,
+        // clientSecret: clientSecret,
+        // scope: "launch openid fhirUser patient/*.read online_access",
         redirectUri,
         iss,
         launch,
